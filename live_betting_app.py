@@ -1,6 +1,10 @@
-
 import streamlit as st
 import pandas as pd
+import joblib
+
+# Load trained models
+clf_model = joblib.load("clf_model.pkl")
+reg_model = joblib.load("reg_model.pkl")
 
 def live_bet_prediction(ht_stats, clf_model, reg_model):
     input_df = pd.DataFrame([ht_stats])
@@ -25,9 +29,10 @@ def live_bet_prediction(ht_stats, clf_model, reg_model):
     results.update(ou_predictions)
     return results
 
-def main_ui(clf_model=None, reg_model=None):
+def main_ui(clf_model, reg_model):
     st.title("⚽ Live Match Betting Predictor")
     st.header("Enter Half-Time Stats")
+
     ht_stats = {
         'HTHG': st.number_input("Half-Time Home Goals", min_value=0, step=1),
         'HTAG': st.number_input("Half-Time Away Goals", min_value=0, step=1),
@@ -44,14 +49,12 @@ def main_ui(clf_model=None, reg_model=None):
         'HR': st.number_input("Home Red Cards", min_value=0, step=1),
         'AR': st.number_input("Away Red Cards", min_value=0, step=1),
     }
+
     if st.button("Predict Outcome & Markets"):
-        if clf_model is None or reg_model is None:
-            st.error("This demo version does not include trained models.")
-        else:
-            prediction = live_bet_prediction(ht_stats, clf_model, reg_model)
-            st.subheader("📊 Prediction Results")
-            for key, value in prediction.items():
-                st.write(f"**{key}:** {value}")
+        prediction = live_bet_prediction(ht_stats, clf_model, reg_model)
+        st.subheader("📊 Prediction Results")
+        for key, value in prediction.items():
+            st.write(f"**{key}:** {value}")
 
 if __name__ == "__main__":
-    main_ui()
+    main_ui(clf_model, reg_model)
